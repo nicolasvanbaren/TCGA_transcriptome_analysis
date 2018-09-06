@@ -1,7 +1,7 @@
 library(tidyverse)
 library(stringr)
 
-setwd("/media/nicolas/ce71f585-e4d4-43a3-adea-f042dd3525082/TCGA_rnaseq")                              #set working directory as appropriate (it must contain the source files) 
+setwd("/media/orian/ce71f585-e4d4-43a3-adea-f042dd352508/TCGA_rnaseq")                              #set working directory as appropriate (it must contain the source files) 
 
 #Step1: generate a data frame (tibble_expr) with genes (identified by Ensembl gene identifier) as rows and samples (identified by their GDC manifest file identifier) as columns.
 file_names <- list.files(path = "TCGA_rnaseq_FPKM_UQ", pattern = ".FPKM_UQ.txt$", all.files = FALSE, full.names = TRUE)     #generate a vector listing the names of the files
@@ -76,8 +76,11 @@ corresp_sampleUUID_barcode <- corresp_sampleUUID_barcode %>%
 
 corresp_sampleUUID_barcode$tissue_type <- recode_factor(corresp_sampleUUID_barcode$tissue_type, "01" = "primary_tumor","02" = "primary_tumor","03" = "primary_tumor","05" = "primary_tumor","06"="metastasis","07"="metastasis","11"="adjacent_normal")
 
-fileid_manifestfileid <- read_tsv("fileid_manifestfileid.txt")
-corresp_manifestUUID_barcode <- full_join(fileid_manifestfileid,  corresp_sampleUUID_barcode, by = "file_id")
+manifest <- rename(manifest, file_id = id) %>%
+  rename(manifest_file_id = filename)
+manifest$manifest_file_id <- str_replace(manifest$manifest_file_id,".FPKM-UQ.txt.gz", "")
+corresp_manifestUUID_barcode <- full_join(manifest, corresp_sampleUUID_barcode, by = "file_id") %>%
+  dplyr::select(manifest_file_id, submitter_id, bcr_patient_barcode, tissue_type)
 
 sample_annot <- read_tsv("Downloaded_from_GDC/slide.tsv") %>%                                          #import sample annotations (obtained from)
   mutate(tumor_code = factor(str_sub(project_id, 6, 9))) %>%                                    #add column with 4-letter tumor code (derived from truncated TCGA-XXXX code)
