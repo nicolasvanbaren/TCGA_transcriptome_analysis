@@ -3,7 +3,7 @@ library(ggthemes)
 library(scales)
 setwd("/media/orian/ce71f585-e4d4-43a3-adea-f042dd352508/TCGA_rnaseq")
 
-tibble_expr_sample_clin <- read_tsv("expr_data_select_clin_annot_FPKM_UQ.txt")
+tibble_expr_sample_clin <- read_tsv("expr_data_select_clin_annot_FPKM_UQ.txt", guess_max = 19323)
 
 target_gene <- "MAGEA9B"
 y_title <- paste(target_gene, " gene expression level", "(normalized FPKM-UQ values)")
@@ -16,10 +16,11 @@ ggplot(plot_table, aes(x = tumor_type, y = get(target_gene))) +
   theme_minimal() +
   theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5)) +
   theme(axis.title = element_text(face = "bold", size = 12, color = "black"), axis.text.x = element_text(size = 10, color = "black"), axis.text.y = element_text(size = 10)) +
-#  coord_cartesian(ylim = c(0, 10000000)) +
+  coord_cartesian(ylim = c(0, 300000)) +
   labs(x ="Tumor type (number of samples)", y = y_title) + 
   scale_x_discrete(labels = my.labels) +
   scale_y_continuous(labels = comma) +
   theme(panel.grid.major.x = element_blank()) +
-  geom_vline(xintercept=seq(0.5,33,1), lwd = 0.2, colour = "grey")
+  geom_vline(xintercept=seq(0.5,33,1), lwd = 0.2, colour = "grey") +
+  scale_color_manual(values = c("brown","black"))
 
